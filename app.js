@@ -13,8 +13,8 @@ app.use(bodyParser.json());
 
 // POST endpoint to handle bookings
 app.post('/api/bookings', async (req, res) => {
-  const { selectedDate, selectedTime, selectedSpecialist, selectedServices } = req.body;
-
+  const { dateTime, selectedSpecialist, selectedServices, userGmail } = req.body;
+  const {date: selectedDate, time: selectedTime} = dateTime;
   // Validate input
   if (!selectedDate || !selectedTime || !selectedSpecialist || !selectedServices) {
     return res.status(400).json({ message: 'All fields are required.' });
@@ -58,7 +58,7 @@ app.post('/api/bookings', async (req, res) => {
   try {
     await transporter.sendMail({
       from: process.env.GMAIL_USER,
-      to: process.env.GMAIL_USER, // Send to yourself or another recipient
+      to: userGmail, // Send to yourself or another recipient
       subject: 'New Booking Confirmation',
       html: message,
     });
