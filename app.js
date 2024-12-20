@@ -1,27 +1,30 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
 const bodyParser = require('body-parser');
-const cors = require('cors');
-require('dotenv').config();
+const cors = require('cors'); // Import cors
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
+app.use(cors()); // Allow all origins
 app.use(bodyParser.json());
 
 // POST endpoint to handle bookings
 app.post('/api/bookings', async (req, res) => {
   const { dateTime, selectedSpecialist, selectedServices, userGmail } = req.body;
-  const {date: selectedDate, time: selectedTime} = dateTime;
+
+  if (!dateTime || !selectedSpecialist || !selectedServices || !userGmail) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  const { date, time } = dateTime;
   // Validate input
-  if (!selectedDate || !selectedTime || !selectedSpecialist || !selectedServices) {
+  if (!date || !time || !selectedSpecialist || !selectedServices) {
     return res.status(400).json({ message: 'All fields are required.' });
   }
 
   // Create the email message
-// Создание сообщения электронной почты
   const message = `
     <div style="font-family: Arial, sans-serif; background-color: #f8f9fa; padding: 20px; border-radius: 8px;">
         <h1 style="color: #007bff;">Подтверждение бронирования</h1>
@@ -30,8 +33,8 @@ app.post('/api/bookings', async (req, res) => {
         
         <h2 style="color: #333;">Детали вашего бронирования:</h2>
         <ul style="color: #555; list-style-type: none; padding: 0;">
-            <li><strong>Дата:</strong> ${selectedDate}</li>
-            <li><strong>Время:</strong> ${selectedTime}</li>
+            <li><strong>Дата:</strong> ${date}</li>
+            <li><strong>Время:</strong> ${time}</li>
             <li><strong>Специалист:</strong> ${selectedSpecialist}</li>
             <li><strong>Услуги:</strong> ${selectedServices.join(', ')}</li>
         </ul>
